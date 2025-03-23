@@ -34,6 +34,8 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/node": "22.13.11",
+    "@types/react": "19.0.12",
     "eslint": "^9",
     "eslint-config-next": "15.2.3",
     "prisma": "^6.5.0",
