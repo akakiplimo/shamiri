@@ -3,6 +3,7 @@ import { getJournalEntries } from '@/actions/journal';
 import { log } from 'console';
 import React from 'react';
 import Categories from './components/categories';
+import MoodAnalytics from './components/mood-analytics';
 
 const Dashboard = async () => {
   const categories = await getCategories();
@@ -22,7 +23,9 @@ const Dashboard = async () => {
 
   return (
     <div className="px-4 py-8 space-y-8">
-      <section className="space-y-4">{/* Mood Analytics */}</section>
+      <section className="space-y-4">
+        <MoodAnalytics />
+      </section>
 
       <Categories
         categories={categories}

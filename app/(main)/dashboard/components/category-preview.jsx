@@ -64,7 +64,7 @@ const CategoryPreview = ({
   }
   return (
     <Link
-      href={`/collection/${isUnorganized ? 'unorganized' : id}`}
+      href={`/category/${isUnorganized ? 'unorganized' : id}`}
       className="group relative"
     >
       <FolderTab
