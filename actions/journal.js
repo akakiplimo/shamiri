@@ -67,7 +67,7 @@ export async function createJournalEntry(data) {
         mood: mood.id,
         moodImageUrl,
         moodScore: mood.score,
-        collectionId: data.collectionId || null,
+        categoryId: data.categoryId || null,
       },
     });
 

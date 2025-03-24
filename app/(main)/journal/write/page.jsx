@@ -45,7 +45,7 @@ const JournalEntryPage = () => {
       title: '',
       content: '',
       mood: '',
-      collectionId: '',
+      categoryId: '',
     },
   });
 
@@ -57,8 +57,8 @@ const JournalEntryPage = () => {
   useEffect(() => {
     if (actionResult && !actionLoading) {
       router.push(
-        `/collection/${
-          actionResult.collectionId ? actionResult.collectionId : 'unorganized'
+        `/category/${
+          actionResult.categoryId ? actionResult.categoryId : 'unorganized'
         }`
       );
 
@@ -176,10 +176,8 @@ const JournalEntryPage = () => {
             render={({ field }) => (
             )}
           /> */}
-          {errors.collectionId && (
-            <p className="text-red-500 text-sm">
-              {errors.collectionId.message}
-            </p>
+          {errors.categoryId && (
+            <p className="text-red-500 text-sm">{errors.categoryId.message}</p>
           )}
         </div>
 
