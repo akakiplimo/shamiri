@@ -13,7 +13,7 @@ const WriteLayout = ({ children }) => {
           &larr; Back to Dashboard
         </Link>
       </div>
-      <Suspense fallback={<BarLoader color="blue" width={'100%'} />}>
+      <Suspense fallback={<BarLoader color="#2196f3" width={'100%'} />}>
         {children}
       </Suspense>
     </div>

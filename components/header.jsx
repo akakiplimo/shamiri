@@ -17,6 +17,7 @@ const Header = async () => {
           <Image
             src={'/logo.png'}
             alt="Shamiri Logo"
+            loading="lazy"
             width={200}
             height={60}
             className="h-10 w-auto object-contain"
@@ -25,10 +26,10 @@ const Header = async () => {
 
         <div className="flex items-center gap-4">
           <SignedIn>
-            <Link href={'/dashboard#collections'}>
+            <Link href={'/dashboard#categories'}>
               <Button variant="outline" className="flex items-center gap-2">
                 <FolderOpen size={18} />
-                <span className="hidden md:inline">Collections</span>
+                <span className="hidden md:inline">Categories</span>
               </Button>
             </Link>
           </SignedIn>
