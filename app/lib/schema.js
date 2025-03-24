@@ -6,3 +6,8 @@ export const journalSchema = z.object({
   mood: z.string().min(1, 'Mood is Required'),
   categoryId: z.string().optional(),
 });
+
+export const categorySchema = z.object({
+  name: z.string().min(1, 'Name is Required'),
+  description: z.string().optional(),
+});

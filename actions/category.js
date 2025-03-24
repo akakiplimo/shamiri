@@ -1,19 +1,15 @@
 'use server';
 
-import { MOODS } from '@/app/lib/moods';
+import aj from '@/lib/arcjet';
 import { db } from '@/lib/prisma';
+import { request } from '@arcjet/next';
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
-import { getPixabayImage } from './public';
-import { request } from '@arcjet/next';
-import aj from '@/lib/arcjet';
 
-export async function createJournalEntry(data) {
+export async function createCategory(data) {
   try {
     const { userId } = await auth();
-    if (!userId) {
-      throw new Error('User not authenticated');
-    }
+    if (!userId) throw new Error('Unauthorized');
 
     //ArcJet Rate Limiting
     const req = await request();
@@ -50,34 +46,42 @@ export async function createJournalEntry(data) {
       throw new Error('User not found');
     }
 
-    const mood = MOODS[data.mood.toUpperCase()];
-    if (!mood) {
-      throw new Error('Invalid mood');
-    }
-
-    const moodImageUrl = await getPixabayImage(data.moodQuery);
-
-    const entry = await db.entry.create({
+    const category = await db.category.create({
       data: {
-        title: data.title,
-        content: data.content,
-        userId: user.id,
-        mood: mood.id,
-        moodImageUrl,
-        moodScore: mood.score,
-        categoryId: data.categoryId || null,
-      },
-    });
-
-    await db.draft.deleteMany({
-      where: {
+        name: data.name,
+        description: data.description,
         userId: user.id,
       },
     });
 
     revalidatePath('/dashboard');
-    return entry;
+    return category;
   } catch (error) {
     throw new Error(error.message);
   }
+}
+
+export async function getCategories(data) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const user = await db.user.findUnique({
+    where: {
+      clerkUserId: userId,
+    },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const categories = await db.category?.findMany({
+    where: {
+      userId: user.id,
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  revalidatePath('/dashboard');
+  return categories;
 }

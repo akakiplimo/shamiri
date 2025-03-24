@@ -1,6 +1,6 @@
 'use client';
 import dynamic from 'next/dynamic';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import 'react-quill-new/dist/quill.snow.css';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,15 +20,32 @@ import useFetch from '@/hooks/use-fetch';
 import { createJournalEntry } from '@/actions/journal';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { createCategory, getCategories } from '@/actions/category';
+import CategoryForm from '@/components/category-dialog';
+import { COLORS } from '@/lib/utils';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
 const JournalEntryPage = () => {
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+
   const {
-    loading: actionLoading,
-    fn: actionFn,
-    data: actionResult,
+    fn: journalCreateFn,
+    loading: journalCreateLoading,
+    data: journalCreateResult,
   } = useFetch(createJournalEntry);
+
+  const {
+    fn: createCategoriesFn,
+    loading: createCategoriesLoading,
+    data: createdCategory,
+  } = useFetch(createCategory);
+
+  const {
+    fn: fetchCategories,
+    loading: categoriesLoading,
+    data: categories,
+  } = useFetch(getCategories);
 
   const router = useRouter();
 
@@ -38,6 +55,7 @@ const JournalEntryPage = () => {
     control,
     formState: { errors },
     getValues,
+    setValue,
     watch,
   } = useForm({
     resolver: zodResolver(journalSchema),
@@ -52,28 +70,47 @@ const JournalEntryPage = () => {
   // watch is more efficient than getValues
   const currentMood = watch('mood');
 
-  const isLoading = actionLoading;
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
-    if (actionResult && !actionLoading) {
+    if (journalCreateResult && !journalCreateLoading) {
       router.push(
         `/category/${
-          actionResult.categoryId ? actionResult.categoryId : 'unorganized'
+          journalCreateResult.categoryId
+            ? journalCreateResult.categoryId
+            : 'unorganized'
         }`
       );
 
       toast.success('Journal entry created successfully');
     }
-  }, [actionResult, actionLoading]);
+  }, [journalCreateResult, journalCreateLoading]);
 
   const onSubmit = handleSubmit(async (data) => {
     const mood = getMoodById(data.mood);
-    actionFn({
+    journalCreateFn({
       ...data,
       moodScore: mood.score,
       moodQuery: mood.pixabayQuery,
     });
   });
+
+  useEffect(() => {
+    if (createdCategory) {
+      fetchCategories();
+      setIsCategoryDialogOpen(false);
+      setValue('categoryId', createdCategory.id);
+      toast.success(`Category ${createdCategory.name} created successfully`);
+    }
+  }, [createdCategory]);
+
+  const handleCreateCategory = async (data) => {
+    createCategoriesFn(data);
+  };
+
+  const isLoading = journalCreateLoading || categoriesLoading;
 
   return (
     <div className="py-8">
@@ -82,7 +119,7 @@ const JournalEntryPage = () => {
           What&apos;s on your mind?
         </h1>
 
-        {isLoading ? <BarLoader color="#2196f3" width={'100%'} /> : null}
+        {isLoading ? <BarLoader color={COLORS.loader} width={'100%'} /> : null}
 
         <div className="space-y-2">
           <label className="text-sm font-medium">Title</label>
@@ -170,12 +207,43 @@ const JournalEntryPage = () => {
           <label className="text-sm font-medium">
             Add to Category (Optional)
           </label>
-          {/* <Controller
-            name="content"
+          <Controller
+            name="categoryId"
             control={control}
-            render={({ field }) => (
-            )}
-          /> */}
+            render={({ field }) => {
+              return (
+                <Select
+                  onValueChange={(value) => {
+                    if (value === 'new') {
+                      setIsCategoryDialogOpen(true);
+                    } else {
+                      field.onChange(value);
+                    }
+                    field.onChange;
+                  }}
+                  value={field.value}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a category..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories?.map((c) => {
+                      return (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
+                      );
+                    })}
+                    <SelectItem key="new" value="new">
+                      <span className="text-blue-600">
+                        + Create New Category
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              );
+            }}
+          />
           {errors.categoryId && (
             <p className="text-red-500 text-sm">{errors.categoryId.message}</p>
           )}
@@ -187,6 +255,13 @@ const JournalEntryPage = () => {
           </Button>
         </div>
       </form>
+
+      <CategoryForm
+        loading={createCategoriesLoading}
+        onSuccess={handleCreateCategory}
+        open={isCategoryDialogOpen}
+        setOpen={setIsCategoryDialogOpen}
+      />
     </div>
   );
 };

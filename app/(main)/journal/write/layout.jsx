@@ -1,3 +1,4 @@
+import { COLORS } from '@/lib/utils';
 import Link from 'next/link';
 import React, { Suspense } from 'react';
 import { BarLoader } from 'react-spinners';
@@ -13,7 +14,7 @@ const WriteLayout = ({ children }) => {
           &larr; Back to Dashboard
         </Link>
       </div>
-      <Suspense fallback={<BarLoader color="#2196f3" width={'100%'} />}>
+      <Suspense fallback={<BarLoader color={COLORS.loader} width={'100%'} />}>
         {children}
       </Suspense>
     </div>
