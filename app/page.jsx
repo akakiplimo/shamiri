@@ -10,7 +10,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart2, FileText } from 'lucide-react';
 import { Book, Lock, Sparkles, ChevronRight, Calendar } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import faqs from '../data/faqs.json';
 import { getDailyPrompt } from '@/actions/public';
@@ -38,8 +37,6 @@ const features = [
 
 export default async function Home() {
   const advice = await getDailyPrompt();
-
-  console.log(advice);
 
   return (
     <div className="relative container mx-auto px-4 pt-16 pb-16">

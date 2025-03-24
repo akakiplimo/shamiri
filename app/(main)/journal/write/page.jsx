@@ -45,7 +45,7 @@ const JournalEntryPage = () => {
       title: '',
       content: '',
       mood: '',
-      collectionId: '',
+      categoryId: '',
     },
   });
 
@@ -57,8 +57,8 @@ const JournalEntryPage = () => {
   useEffect(() => {
     if (actionResult && !actionLoading) {
       router.push(
-        `/collection/${
-          actionResult.collectionId ? actionResult.collectionId : 'unorganized'
+        `/category/${
+          actionResult.categoryId ? actionResult.categoryId : 'unorganized'
         }`
       );
 
@@ -82,7 +82,7 @@ const JournalEntryPage = () => {
           What&apos;s on your mind?
         </h1>
 
-        {isLoading ? <BarLoader color="blue" width={'100%'} /> : null}
+        {isLoading ? <BarLoader color="#2196f3" width={'100%'} /> : null}
 
         <div className="space-y-2">
           <label className="text-sm font-medium">Title</label>
@@ -168,7 +168,7 @@ const JournalEntryPage = () => {
 
         <div className="space-y-2">
           <label className="text-sm font-medium">
-            Add to Collection (Optional)
+            Add to Category (Optional)
           </label>
           {/* <Controller
             name="content"
@@ -176,10 +176,8 @@ const JournalEntryPage = () => {
             render={({ field }) => (
             )}
           /> */}
-          {errors.collectionId && (
-            <p className="text-red-500 text-sm">
-              {errors.collectionId.message}
-            </p>
+          {errors.categoryId && (
+            <p className="text-red-500 text-sm">{errors.categoryId.message}</p>
           )}
         </div>
 
