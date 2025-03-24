@@ -88,15 +88,6 @@ const JournalEntryPage = () => {
     }
   }, [journalCreateResult, journalCreateLoading]);
 
-  const onSubmit = handleSubmit(async (data) => {
-    const mood = getMoodById(data.mood);
-    journalCreateFn({
-      ...data,
-      moodScore: mood.score,
-      moodQuery: mood.pixabayQuery,
-    });
-  });
-
   useEffect(() => {
     if (createdCategory) {
       fetchCategories();
@@ -105,6 +96,15 @@ const JournalEntryPage = () => {
       toast.success(`Category ${createdCategory.name} created successfully`);
     }
   }, [createdCategory]);
+
+  const onSubmit = handleSubmit(async (data) => {
+    const mood = getMoodById(data.mood);
+    journalCreateFn({
+      ...data,
+      moodScore: mood.score,
+      moodQuery: mood.pixabayQuery,
+    });
+  });
 
   const handleCreateCategory = async (data) => {
     createCategoriesFn(data);

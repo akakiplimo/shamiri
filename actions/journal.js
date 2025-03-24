@@ -1,6 +1,6 @@
 'use server';
 
-import { MOODS } from '@/app/lib/moods';
+import { getMoodById, MOODS } from '@/app/lib/moods';
 import { db } from '@/lib/prisma';
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
@@ -79,5 +79,63 @@ export async function createJournalEntry(data) {
     return entry;
   } catch (error) {
     throw new Error(error.message);
+  }
+}
+
+export async function getJournalEntries(categoryId, orderBy = 'desc') {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+
+    const user = await db.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const entries = await db.entry.findMany({
+      where: {
+        userId: user.id,
+        ...(categoryId === 'unorganized'
+          ? { categoryId: null }
+          : categoryId
+          ? { categoryId }
+          : {}),
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: orderBy,
+      },
+    });
+
+    const entriesWithMoodData = entries.map((entry) => ({
+      ...entry,
+      moodData: getMoodById(entry.mood),
+    }));
+
+    return {
+      success: true,
+      data: {
+        entries: entriesWithMoodData,
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+    };
   }
 }

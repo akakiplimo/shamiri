@@ -17,7 +17,7 @@ const Header = async () => {
           <Image
             src={'/logo.png'}
             alt="Shamiri Logo"
-            loading="lazy"
+            priority={true}
             width={200}
             height={60}
             className="h-10 w-auto object-contain"

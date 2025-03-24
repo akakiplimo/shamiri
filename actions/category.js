@@ -82,6 +82,5 @@ export async function getCategories(data) {
     orderBy: { createdAt: 'desc' },
   });
 
-  revalidatePath('/dashboard');
   return categories;
 }
