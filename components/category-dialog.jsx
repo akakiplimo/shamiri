@@ -55,7 +55,7 @@ const CategoryForm = ({ onSuccess, loading, open, setOpen }) => {
             <Textarea
               disabled={loading}
               {...register('description')}
-              placeholder="Describe your collection..."
+              placeholder="Describe your category..."
               className={`${errors.description ? 'border-red-500' : ''}`}
             />
             {errors.description && (
