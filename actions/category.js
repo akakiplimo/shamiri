@@ -84,3 +84,27 @@ export async function getCategories(data) {
 
   return categories;
 }
+
+export async function getCategory(categoryId) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const user = await db.user.findUnique({
+    where: {
+      clerkUserId: userId,
+    },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const categories = await db.category?.findUnique({
+    where: {
+      userId: user.id,
+      id: categoryId,
+    },
+  });
+
+  return categories;
+}

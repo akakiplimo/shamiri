@@ -18,6 +18,9 @@ export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
       <html lang="en">
+        <head>
+          <link rel="preload" href="/bg.jpg" as="image" fetchPriority="high" />
+        </head>
         <body className={`${inter.className}`}>
           <div className="bg-[url('/bg.jpg')] opacity-50 fixed -z-10 inset-0" />
           <Header />

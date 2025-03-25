@@ -82,32 +82,61 @@ export async function createJournalEntry(data) {
   }
 }
 
-export async function getJournalEntries(categoryId, orderBy = 'desc') {
+export async function getJournalEntries({
+  categoryId,
+  // ---- Filters can be implemented with backend as well ----
+  // mood = null,
+  // searchQuery = "",
+  // startDate = null,
+  // endDate = null,
+  // page = 1,
+  // limit = 10,
+  orderBy = 'desc', // or "asc"
+} = {}) {
   try {
     const { userId } = await auth();
-    if (!userId) {
-      throw new Error('User not authenticated');
-    }
+    if (!userId) throw new Error('Unauthorized');
 
     const user = await db.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
+      where: { clerkUserId: userId },
     });
 
-    if (!user) {
-      throw new Error('User not found');
-    }
+    if (!user) throw new Error('User not found');
 
+    // Build where clause based on filters
+    const where = {
+      userId: user.id,
+      // If categoryId is explicitly null, get unorganized entries
+      // If it's undefined, get all entries
+      ...(categoryId === 'unorganized'
+        ? { categoryId: null }
+        : categoryId
+        ? { categoryId }
+        : {}),
+
+      // ---- Filters can be implemented with backend as well ----
+      // ...(mood && { mood }),
+      // ...(searchQuery && {
+      //   OR: [
+      //     { title: { contains: searchQuery, mode: "insensitive" } },
+      //     { content: { contains: searchQuery, mode: "insensitive" } },
+      //   ],
+      // }),
+      // ...((startDate || endDate) && {
+      //   createdAt: {
+      //     ...(startDate && { gte: new Date(startDate) }),
+      //     ...(endDate && { lte: new Date(endDate) }),
+      //   },
+      // }),
+    };
+
+    // ---- Get total count for pagination ----
+    // const totalEntries = await db.entry.count({ where });
+    // const totalPages = Math.ceil(totalEntries / limit);
+
+    // Get entries with pagination
     const entries = await db.entry.findMany({
-      where: {
-        userId: user.id,
-        ...(categoryId === 'unorganized'
-          ? { categoryId: null }
-          : categoryId
-          ? { categoryId }
-          : {}),
-      },
+      where,
       include: {
         category: {
           select: {
@@ -119,8 +148,11 @@ export async function getJournalEntries(categoryId, orderBy = 'desc') {
       orderBy: {
         createdAt: orderBy,
       },
+      // skip: (page - 1) * limit,
+      // take: limit,
     });
 
+    // Add mood data to each entry
     const entriesWithMoodData = entries.map((entry) => ({
       ...entry,
       moodData: getMoodById(entry.mood),
@@ -130,12 +162,15 @@ export async function getJournalEntries(categoryId, orderBy = 'desc') {
       success: true,
       data: {
         entries: entriesWithMoodData,
+        // pagination: {
+        //   total: totalEntries,
+        //   pages: totalPages,
+        //   current: page,
+        //   hasMore: page < totalPages,
+        // },
       },
     };
   } catch (error) {
-    return {
-      success: false,
-      error: error.message,
-    };
+    return { success: false, error: error.message };
   }
 }
