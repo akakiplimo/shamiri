@@ -108,3 +108,44 @@ export async function getCategory(categoryId) {
 
   return categories;
 }
+
+// deleteCategory server action
+export async function deleteCategory(categoryId) {
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error('Unauthorized');
+
+    const user = await db.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const categories = await db.category.findFirst({
+      where: {
+        userId: user.id,
+        id: categoryId,
+      },
+    });
+
+    if (!categories) {
+      throw new Error('Category not found');
+    }
+
+    await db.category.delete({
+      where: {
+        id: categoryId,
+      },
+    });
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
