@@ -6,6 +6,7 @@ import EditButton from './_components/edit-button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import DeleteEntryDialog from './_components/delete-entry';
+import AskAI from './_components/ask-ai';
 
 const JournalEntryPage = async ({ params }) => {
   const { id } = params;
@@ -37,7 +38,9 @@ const JournalEntryPage = async ({ params }) => {
                 Created {format(new Date(entry.createdAt), 'PPP')}
               </p>
             </div>
-            <div>
+            <div className="space-x-4">
+              {/* Ask AI Button */}
+              <AskAI entryId={id} />
               <EditButton entryId={id} />
               <DeleteEntryDialog entryId={id} />
             </div>
