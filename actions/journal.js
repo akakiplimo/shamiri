@@ -482,8 +482,6 @@ export async function askAIAboutJournals(questions, responses, id) {
 
   const validatedMessages = validateMessages(messages);
 
-  console.log('Prepared messages:', validatedMessages);
-
   try {
     const completion = await ai.chat.completions.create({
       model: 'deepseek/deepseek-chat-v3-0324:free',
