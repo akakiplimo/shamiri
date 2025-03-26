@@ -3,9 +3,10 @@ import { format } from 'date-fns';
 import Image from 'next/image';
 import React from 'react';
 import EditButton from './_components/edit-button';
-import DeleteDialog from './_components/delete-dialog';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import DeleteEntryDialog from './_components/delete-entry';
+import { cn } from '@/lib/utils';
 
 const JournalEntryPage = async ({ params }) => {
   const { id } = params;
@@ -40,7 +41,7 @@ const JournalEntryPage = async ({ params }) => {
             </div>
             <div>
               <EditButton entryId={id} />
-              <DeleteDialog entryId={id} />
+              <DeleteEntryDialog entryId={id} />
             </div>
           </div>
 
@@ -54,9 +55,9 @@ const JournalEntryPage = async ({ params }) => {
             <Badge
               variant="outline"
               style={{
-                backgroundColor: `var(--${entry.moodData.color}-50)`,
-                color: `var(--${entry.moodData.color}-700)`,
-                borderColor: `var(--${entry.moodData.color}-200)`,
+                backgroundColor: `var(--${entry.moodData.color}-50) !important`,
+                color: `var(--${entry.moodData.color}-700) !important`,
+                borderColor: `var(--${entry.moodData.color}-200) !important`,
               }}
             >
               Feeling {entry.moodData.label}

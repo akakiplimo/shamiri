@@ -216,3 +216,43 @@ export async function getJournalEntry(id) {
     return { success: false, error: error.message };
   }
 }
+
+export async function deleteJournalEntry(id) {
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error('Unauthorized');
+
+    const user = await db.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const entry = await db.entry.findFirst({
+      where: {
+        userId: user.id,
+        id,
+      },
+    });
+
+    if (!entry) {
+      throw new Error('Journal entry not found');
+    }
+
+    await db.entry.delete({
+      where: {
+        id,
+      },
+    });
+
+    revalidatePath('/dashboard');
+
+    return entry;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
