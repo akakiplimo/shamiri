@@ -6,7 +6,6 @@ import EditButton from './_components/edit-button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import DeleteEntryDialog from './_components/delete-entry';
-import { cn } from '@/lib/utils';
 
 const JournalEntryPage = async ({ params }) => {
   const { id } = params;
@@ -14,7 +13,6 @@ const JournalEntryPage = async ({ params }) => {
     data: { entry },
   } = await getJournalEntry(id);
 
-  console.log('entry', entry);
   return (
     <>
       {entry.moodImageUrl && (
