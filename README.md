@@ -345,12 +345,15 @@ graph TD
     LB --> WebApp[Next.js Web App]
     WebApp --> Cache[Redis Cache]
     WebApp --> Queue[Message Queue]
-    WebApp --> DB[(PostgreSQL)]
+    WebApp --> |Write| DB[(PostgreSQL Main)]
+    DB --> DBReplica[(DB Replicas)]
+    DBReplica --> |Read| WebApp
+    DBReplica --> |Read| WebApp
     Queue --> Workers[Background Workers]
     Workers --> AI[AI Service]
     Workers --> Storage[Object Storage]
 
-    style WebApp fill:#f9f,stroke:#333
+    style WebApp fill:#afe,stroke:#333
     style Cache fill:#fff,stroke:#333
     style DB fill:#fff,stroke:#333
 ```
