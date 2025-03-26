@@ -112,6 +112,19 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Add your custom keyframes and animations here */
+@keyframes shine {
+  0% { background-position: 200% 0; }
+  25% { background-position: -200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -124,6 +137,14 @@
 @layer utilities {
   .gradient-title {
     @apply font-extrabold bg-gradient-to-br from-blue-500 via-blue-300 to-blue-400 bg-clip-text tracking-tighter text-transparent pr-2 pb-2;
+  }
+
+  .animate-shine {
+    @apply [animation:shine_3s_ease-out_infinite];
+  }
+  
+  .animate-gradient-flow {
+    @apply [animation:gradientFlow_10s_ease_0s_infinite_normal_none_running];
   }
 }
 

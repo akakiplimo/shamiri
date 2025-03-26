@@ -4,10 +4,10 @@ import { getMoodById, MOODS } from '@/app/lib/moods';
 import { db } from '@/lib/prisma';
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
-import { getPixabayImage } from './public';
+import { getPixabayImage, openai } from './public';
 import { request } from '@arcjet/next';
 import aj from '@/lib/arcjet';
-import { draftMode } from 'next/headers';
+import ai from '@/lib/openai';
 
 export async function createJournalEntry(data) {
   try {
@@ -392,5 +392,109 @@ export async function saveDraft(data) {
       success: false,
       error: error.message,
     };
+  }
+}
+
+export async function askAIAboutJournals(questions, responses, id) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const user = await db.user.findUnique({
+    where: {
+      clerkUserId: userId,
+    },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const entry = await db.entry.findUnique({
+    where: {
+      id,
+      userId: user.id,
+    },
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  if (!entry) throw new Error('Entry not found');
+
+  // create a string from the entry fields
+  const formattedEntry = `Title: ${entry.title}. Content: ${entry.content} Mood: ${entry.mood} Created at: ${entry.createdAt} Last updated: ${entry.updatedAt}`;
+
+  const messages = [
+    {
+      role: 'system', // Changed from 'developer' to 'system' for standard AI interaction
+      content: `
+  You are a helpful assistant that answers questions about a user's journals. 
+  - Assume all questions are related to the user's journals. 
+  - Make sure your answers are concise and to the point.
+  - Responses MUST be formatted in clean, valid HTML with proper structure. 
+  - Use semantic HTML tags:
+    - <p> for paragraphs
+    - <strong> for emphasis
+    - <em> for additional emphasis
+    - <ul> or <ol> for lists
+    - <h1> to <h6> for headings
+  - Avoid inline styles, JavaScript, or custom attributes.
+  
+  Response Format Example in JSX:
+  <p dangerouslySetInnerHTML={{ __html: YOUR_RESPONSE }} />
+  
+  User's Journals:
+  ${formattedEntry}
+      `.trim(), // Use .trim() to remove leading/trailing whitespace
+    },
+  ];
+
+  // Add user questions and previous assistant responses
+  for (let i = 0; i < questions.length; i++) {
+    // Add user question
+    messages.push({
+      role: 'user',
+      content: questions[i],
+    });
+
+    // Add previous assistant response if available
+    if (responses && responses.length > i) {
+      messages.push({
+        role: 'assistant',
+        content: responses[i],
+      });
+    }
+  }
+
+  // Optional: Validate messages before sending
+  const validateMessages = (msgs) => {
+    return msgs.map((msg) => ({
+      role: msg.role,
+      content:
+        typeof msg.content === 'string' ? msg.content.trim() : msg.content,
+    }));
+  };
+
+  const validatedMessages = validateMessages(messages);
+
+  try {
+    const completion = await ai.chat.completions.create({
+      model: 'deepseek/deepseek-chat-v3-0324:free',
+      messages: validatedMessages,
+      // Optional additional parameters
+      max_tokens: 300, // Limit response length if needed
+      temperature: 0.7, // Control creativity
+    });
+
+    return completion.choices[0].message.content;
+  } catch (error) {
+    console.error('Error in AI completion:', error);
+    // Handle or rethrow the error as needed
+    throw error;
   }
 }
