@@ -3,7 +3,7 @@ import Link from 'next/link';
 import React, { Suspense } from 'react';
 import { BarLoader } from 'react-spinners';
 
-const WriteLayout = ({ children }) => {
+const JournalEntryLayout = ({ children }) => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div>
@@ -21,4 +21,4 @@ const WriteLayout = ({ children }) => {
   );
 };
 
-export default WriteLayout;
+export default JournalEntryLayout;

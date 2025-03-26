@@ -18,11 +18,13 @@ export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
       <html lang="en">
+        <head>
+          <link rel="preload" href="/bg.jpg" as="image" fetchPriority="high" />
+        </head>
         <body className={`${inter.className}`}>
           <div className="bg-[url('/bg.jpg')] opacity-50 fixed -z-10 inset-0" />
           <Header />
           <main className="min-h-screen">{children}</main>
-
           <Toaster richColors />
           <footer className="bg-blue-300/5 py-12">
             <div className="mx-auto px-4 text-center text-gray-900">
