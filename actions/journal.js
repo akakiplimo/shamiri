@@ -174,3 +174,45 @@ export async function getJournalEntries({
     return { success: false, error: error.message };
   }
 }
+
+export async function getJournalEntry(id) {
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error('Unauthorized');
+
+    const user = await db.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!user) throw new Error('User not found');
+
+    const entry = await db.entry.findUnique({
+      where: {
+        id,
+        userId: user.id,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (!entry) throw new Error('Entry not found');
+
+    return {
+      success: true,
+      data: {
+        entry: {
+          ...entry,
+          moodData: getMoodById(entry.mood),
+        },
+      },
+    };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}

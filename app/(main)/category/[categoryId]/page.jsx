@@ -11,9 +11,6 @@ const CategoryPage = async ({ params }) => {
 
   const category = await getCategory(categoryId);
 
-  console.log(category);
-
-  console.log(entries);
   return (
     <div className="space-y-6">
       <div className="flex flex-col justify-between">
