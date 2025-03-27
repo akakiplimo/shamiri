@@ -482,18 +482,13 @@ export async function askAIAboutJournals(questions, responses, id) {
 
   const validatedMessages = validateMessages(messages);
 
-  try {
-    const completion = await ai.chat.completions.create({
-      model: 'deepseek/deepseek-chat-v3-0324:free',
-      messages: validatedMessages,
-      // Optional additional parameters
-      max_tokens: 300, // Limit response length if needed
-      temperature: 0.7, // Control creativity
-    });
+  const completion = await ai.chat.completions.create({
+    model: 'deepseek/deepseek-chat-v3-0324:free',
+    messages: validatedMessages,
+    // Optional additional parameters
+    max_tokens: 300, // Limit response length if needed
+    temperature: 0.7, // Control creativity
+  });
 
-    return completion.choices[0].message.content;
-  } catch (error) {
-    console.error('Error in AI completion:', error);
-    return 'A problem has occurred';
-  }
+  return completion.choices[0].message.content || 'A problem has occurred';
 }
