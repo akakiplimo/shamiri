@@ -494,7 +494,6 @@ export async function askAIAboutJournals(questions, responses, id) {
     return completion.choices[0].message.content;
   } catch (error) {
     console.error('Error in AI completion:', error);
-    // Handle or rethrow the error as needed
-    throw error;
+    return 'A problem has occurred';
   }
 }
